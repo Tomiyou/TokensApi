@@ -48,10 +48,11 @@ func UninstallErrorHook() {
 	HookFunc = NullHookFunc
 }
 
-func Init(configPath string) error {
-	var err error
-	Credentials, err = parseJsonCfg(configPath)
-	return err
+func Init(key, secret string) {
+	Credentials = &CredentialsConfig{
+		APIKey:    key,
+		APISecret: secret,
+	}
 }
 
 func parseJsonCfg(configPath string) (*CredentialsConfig, error) {

@@ -7,7 +7,6 @@ import (
 	"flag"
 	"fmt"
 	"math"
-	"os"
 	"testing"
 	"time"
 
@@ -40,17 +39,13 @@ func containsID(orders []entities.OpenOrder, id uuid.UUID) bool {
 }
 
 func initCredentials() bool {
-	if _, err := os.Stat("./credentials"); os.IsNotExist(err) {
-		fmt.Println("Your credentials are required for this test - place a file credentials into current directory")
-		return false
-	}
-
-	err := Init("./credentials")
+	credentials, err := parseJsonCfg("./credentials")
 	if err != nil {
 		fmt.Println("Your credentials are required for this test - place a file credentials into current directory")
 		return false
 	}
 
+	Init(credentials.APIKey, credentials.APISecret)
 	return true
 }
 

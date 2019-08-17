@@ -6,3 +6,4 @@ release
 main
 *.secret
 .DS_Store
+vendor

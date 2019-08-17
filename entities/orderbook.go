@@ -5,8 +5,6 @@
 package entities
 
 import (
-	"encoding/json"
-
 	"github.com/shopspring/decimal"
 
 	"github.com/golang/glog"
@@ -20,7 +18,7 @@ const (
 )
 
 // volume, price
-type Quotation [][2]json.Number
+type Quotation [][2]decimal.Decimal
 
 type OrderBook struct {
 	Bids Quotation `json:"bids" description:"Bids (buy requests)"`

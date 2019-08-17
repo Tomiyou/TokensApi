@@ -5,7 +5,7 @@
 package entities
 
 import (
-	"encoding/json"
+	"github.com/shopspring/decimal"
 
 	"github.com/satori/go.uuid"
 )
@@ -36,10 +36,10 @@ type OpenOrder struct {
 	Id              uuid.UUID   `json:"id" description:"ID"`
 	Created         Timestamp   `json:"created" description:"Timestamp of order"`
 	Type            OrderType   `json:"type" description:"Either buy or sell"`
-	Price           json.Number `json:"price,string" description:"Price of order."`
-	TakeProfitPrice json.Number `json:"takeeprofit,string" description:"Price to take profit."`
-	Amount          json.Number `json:"amount,string" description:"Amount of order."`
-	RemainingAmount json.Number `json:"remainingAmount,string" description:"Remaining amount of order."`
+	Price           decimal.Decimal `json:"price,string" description:"Price of order."`
+	TakeProfitPrice decimal.Decimal `json:"takeeprofit,string" description:"Price to take profit."`
+	Amount          decimal.Decimal `json:"amount,string" description:"Amount of order."`
+	RemainingAmount decimal.Decimal `json:"remainingAmount,string" description:"Remaining amount of order."`
 	CurrencyPair    string      `json:"currencyPair" description:"Currency pair of order."`
 }
 
@@ -54,7 +54,7 @@ type OrderDetailsResp struct {
 
 type ExtendedTrade struct {
 	Trade
-	Value json.Number `json:"value,string" description:"Value is price * amount, however note that currenly it is in limited number of decimals (same as price?)"`
+	Value decimal.Decimal `json:"value,string" description:"Value is price * amount, however note that currenly it is in limited number of decimals (same as price?)"`
 }
 
 type PlaceOrderResp struct {

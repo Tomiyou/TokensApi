@@ -5,6 +5,7 @@ package TokensApi
 
 import (
 	"flag"
+	"github.com/shopspring/decimal"
 	"math"
 	"testing"
 	"time"
@@ -98,15 +99,15 @@ func TestThatOrderBookIsSane(t *testing.T) {
 		return
 	}
 
-	if resp.Bids[0][entities.Price] > resp.Asks[0][entities.Price] {
+	if resp.Bids[0][entities.Price].GreaterThan(resp.Asks[0][entities.Price]) {
 		t.Error("Ask price should be higher or equal that bid")
 	}
 
-	if resp.Asks[0][entities.Price] > resp.Asks[1][entities.Price] {
+	if resp.Asks[0][entities.Price].GreaterThan(resp.Asks[1][entities.Price]) {
 		t.Error("Ask prices should be ordered ascending")
 	}
 
-	if resp.Bids[0][entities.Price] < resp.Bids[1][entities.Price] {
+	if resp.Bids[0][entities.Price].LessThan(resp.Bids[1][entities.Price]) {
 		t.Error("Bid prices should be ordered descending")
 	}
 }
@@ -118,9 +119,12 @@ func TestThatTradingPairsAreSane(t *testing.T) {
 	}
 
 	resp, err := GetTradingPairs()
+	if err != nil {
+		t.Error("Error fetching trading pars")
+	}
 
-	val, err := resp[pair].MinAmount.Float64()
-	if err != nil || val <= 0 || val > 1000000 {
+	val := resp[pair].MinAmount
+	if val.LessThanOrEqual(decimal.Zero) || val.GreaterThan(decimal.NewFromFloat(1000000)) {
 		t.Error("Trading pair should have sane MinAmount", resp[pair].MinAmount)
 	}
 	if resp[pair].BaseCurrency+resp[pair].CounterCurrency != pair {

@@ -5,8 +5,8 @@
 package entities
 
 import (
-	"encoding/json"
 	"fmt"
+	"github.com/shopspring/decimal"
 )
 
 type BalanceResp struct {
@@ -16,8 +16,8 @@ type BalanceResp struct {
 }
 
 type Balance struct {
-	Total     json.Number `json:"total,string" description:"Total amount."`
-	Available json.Number `json:"available,string" description:"Available amount."`
+	Total     decimal.Decimal `json:"total,string" description:"Total amount."`
+	Available decimal.Decimal `json:"available,string" description:"Available amount."`
 }
 
 type Balances map[string]*Balance

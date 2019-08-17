@@ -6,6 +6,7 @@ package TokensApi
 
 import (
 	"errors"
+	"github.com/shopspring/decimal"
 	"strings"
 	"time"
 
@@ -24,9 +25,7 @@ func CancelAllOrders() error {
 	}
 
 	for _, order := range orders.OpenOrders {
-		fl, err := order.RemainingAmount.Float64()
-
-		if err != nil || fl <= 0 {
+		if order.RemainingAmount.LessThanOrEqual(decimal.Zero) {
 			glog.Warningf("Order %v has a strange remaining amount %v", order.Id, order.RemainingAmount)
 		}
 
@@ -67,18 +66,15 @@ func GetAllCurrencies() ([]string, error) {
 	return ret, nil
 }
 
-type Amount float64
-type Price float64
-
 /**
  * Place an order in a type-safe manner to avoid (costly) mistakes.
  */
 func PlaceOrderTyped(
 	pair *entities.TradingPair,
 	side entities.OrderType,
-	amount Amount,
-	price Price,
-	takeProfitPrice *Price,
+	amount decimal.Decimal,
+	price decimal.Decimal,
+	takeProfitPrice *decimal.Decimal,
 	expireDate *time.Time) (entities.PlaceOrderResp, error) {
 
 	var resp entities.PlaceOrderResp
@@ -87,8 +83,7 @@ func PlaceOrderTyped(
 		return resp, errors.New("Pair must not be nil")
 	}
 
-	minAmount, err := pair.MinAmount.Float64()
-	if err != nil || float64(amount) < minAmount {
+	if amount.LessThan(pair.MinAmount) {
 		return resp, errors.New("150 Amount is too low")
 	}
 
@@ -96,21 +91,21 @@ func PlaceOrderTyped(
 		return PlaceOrder(
 			pair.BaseCurrency+pair.CounterCurrency,
 			side,
-			float64(amount),
+			amount,
 			pair.AmountDecimals,
-			float64(price),
+			price,
 			pair.PriceDecimals,
-			float64(*takeProfitPrice),
+			*takeProfitPrice,
 			expireDate)
 	} else {
 		return PlaceOrder(
 			pair.BaseCurrency+pair.CounterCurrency,
 			side,
-			float64(amount),
+			amount,
 			pair.AmountDecimals,
-			float64(price),
+			price,
 			pair.PriceDecimals,
-			-1,
+			decimal.NewFromFloat(-1),
 			expireDate)
 	}
 }
@@ -126,11 +121,7 @@ func GetBalances(hideZero bool) map[string]*entities.BalanceResp {
 	}
 
 	for currency, balance := range all.Balances {
-		total, err := balance.Total.Float64()
-		if err != nil {
-			continue
-		}
-		if (hideZero && total > 0) || !hideZero {
+		if (hideZero && balance.Total.GreaterThan(decimal.Zero)) || !hideZero {
 			resp[strings.ToLower(currency)] = &entities.BalanceResp{
 				Base:     all.Base,
 				Currency: strings.ToLower(currency),

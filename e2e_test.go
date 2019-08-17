@@ -6,7 +6,7 @@ package TokensApi
 import (
 	"flag"
 	"fmt"
-	"math"
+	"github.com/shopspring/decimal"
 	"testing"
 	"time"
 
@@ -76,9 +76,9 @@ func DisabledTestFilledOrder(t *testing.T) {
 
 func TestFiatToCryptoOrder(t *testing.T) {
 	// WARNING: this might spend 5 USDT (but at least you'll get a very good price ;) )
-	const (
-		num = 5.0
-		eps = 0.000001
+	var (
+		num = decimal.NewFromFloat(5.0)
+		eps = decimal.NewFromFloat(0.000001)
 	)
 
 	if !*e2e {
@@ -102,32 +102,20 @@ func TestFiatToCryptoOrder(t *testing.T) {
 		return
 	}
 
-	available, err := balance.Available.Float64()
+	available := balance.Available
 	fmt.Printf("Available balance %v %v\n", available, fiat)
-	if err != nil {
-		t.Error("GetBalance failed with no available money", err)
-		return
-	}
 
-	if available < num {
+	if available.LessThan(num) {
 		fmt.Printf("Not enough funds to conduct test %v %v < %v %v", available, fiat, num, fiat)
 		return
 	}
 
-	fairAskPrice, err := orders.Asks[0][entities.Price].Float64()
-	if err != nil {
-		t.Error("Could not determine fair ask price", err)
-		return
-	}
-	fairBidPrice, err := orders.Bids[0][entities.Price].Float64()
-	if err != nil {
-		t.Error("Could not determine fair bid price", err)
-		return
-	}
+	fairAskPrice := orders.Asks[0][entities.Price]
+	fairBidPrice := orders.Bids[0][entities.Price]
 
 	// Slash the price in half (since I am buying use a ridiculous value) - /2 for average and another /2 for the slashing
-	myPrice := (fairAskPrice + fairBidPrice) / 4.0
-	volume := num / myPrice
+	myPrice := fairAskPrice.Add(fairBidPrice).Div(decimal.NewFromFloat(4.0))
+	volume := num.Div(myPrice)
 
 	pairs, err := GetTradingPairs()
 	if err != nil {
@@ -137,12 +125,12 @@ func TestFiatToCryptoOrder(t *testing.T) {
 
 	pair := pairs[crypto+fiat]
 
-	placement, err := PlaceOrderTyped(&pair, entities.Buy, Amount(volume), Price(myPrice), nil, nil)
+	placement, err := PlaceOrderTyped(&pair, entities.Buy, volume, myPrice, nil, nil)
 	if err != nil {
 		t.Error("PlaceOrderTyped failed", err)
 	}
 
-	fmt.Printf("Placed order %v volume = %v price = %v spent = %v %v\n", placement.OrderId, volume, myPrice, myPrice*volume, fiat)
+	fmt.Printf("Placed order %v volume = %v price = %v spent = %v %v\n", placement.OrderId, volume, myPrice, myPrice.Mul(volume), fiat)
 
 	// After every action it might take a bit for it to get reflected
 	time.Sleep(2 * time.Second)
@@ -153,10 +141,10 @@ func TestFiatToCryptoOrder(t *testing.T) {
 		return
 	}
 
-	newAvailable, err := balance.Available.Float64()
+	newAvailable := balance.Available
 	fmt.Printf("New available balance %v %v\n", newAvailable, fiat)
 
-	if newAvailable >= available {
+	if newAvailable.GreaterThanOrEqual(available) {
 		t.Error("Before there were more available funds", available, newAvailable)
 	}
 
@@ -177,29 +165,20 @@ func TestFiatToCryptoOrder(t *testing.T) {
 		t.Error("Order details has wrong type", details.OpenOrder.Type)
 	}
 
-	theirPrice, err := details.OpenOrder.Price.Float64()
-	if err != nil {
-		t.Error("Conversion failed", err)
-	}
+	theirPrice := details.OpenOrder.Price
 
-	if theirPrice != myPrice {
+	if !theirPrice.Equal(myPrice) {
 		t.Error("Order details has wrong price", theirPrice, myPrice)
 	}
 
-	theirAmount, err := details.OpenOrder.Amount.Float64()
-	if err != nil {
-		t.Error("Conversion failed", err)
-	}
+	theirAmount := details.OpenOrder.Amount
 
-	if math.Abs(theirAmount-volume) > eps {
+	if theirAmount.Sub(volume).Abs().GreaterThan(eps) {
 		t.Error("Order details has wrong amount", theirAmount, volume)
 	}
 
-	theirAmount, err = details.OpenOrder.RemainingAmount.Float64()
-	if err != nil {
-		t.Error("Conversion failed", err)
-	}
-	if math.Abs(theirAmount-volume) > eps {
+	theirAmount = details.OpenOrder.RemainingAmount
+	if theirAmount.Sub(volume).Abs().GreaterThan(eps) {
 		t.Error("Order details has wrong remaining amount", theirAmount, volume)
 	}
 
@@ -243,9 +222,9 @@ func TestFiatToCryptoOrder(t *testing.T) {
 		return
 	}
 
-	newAvailable, err = balance.Available.Float64()
+	newAvailable = balance.Available
 	fmt.Printf("New available balance %v %v\n", newAvailable, fiat)
-	if newAvailable != available {
+	if !newAvailable.Equal(available) {
 		t.Error("After cancellation the same amount of funds should be available", available, newAvailable)
 	}
 

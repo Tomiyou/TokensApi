@@ -4,7 +4,9 @@
 
 package entities
 
-import "encoding/json"
+import (
+	"github.com/shopspring/decimal"
+)
 
 type TransactionType string
 
@@ -26,7 +28,7 @@ type TransactionResp struct {
 type Transaction struct {
 	Id       int64           `json:"id" description:"ID"`
 	Datetime Timestamp       `json:"datetime" description:"Timestamp of transaction"`
-	Amount   json.Number     `json:"amount,string" description:"Amount of transaction."`
+	Amount   decimal.Decimal     `json:"amount,string" description:"Amount of transaction."`
 	Type     TransactionType `json:"type" description:"Type of transaction"`
 	Currency string          `json:"currency" description:"Currency of transaction"`
 }

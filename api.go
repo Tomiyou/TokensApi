@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/shopspring/decimal"
 	"net/url"
 	"sort"
 	"strconv"
@@ -210,11 +211,11 @@ func CancelOrder(id uuid.UUID) (entities.Base, error) {
 func PlaceOrder(
 	pair string,
 	side entities.OrderType,
-	amount float64,
-	amountDecimals int,
-	price float64,
-	priceDecimals int,
-	takeProfitPrice float64,
+	amount decimal.Decimal,
+	amountDecimals int32,
+	price decimal.Decimal,
+	priceDecimals int32,
+	takeProfitPrice decimal.Decimal,
 	expireDate *time.Time) (entities.PlaceOrderResp, error) {
 	var resp entities.PlaceOrderResp
 
@@ -222,11 +223,11 @@ func PlaceOrder(
 
 	data := url.Values{}
 
-	if amount <= 0 {
+	if amount.LessThanOrEqual(decimal.Zero) {
 		return resp, errors.New("Negative amount is not allowed")
 	}
 
-	if price <= 0 {
+	if price.LessThanOrEqual(decimal.Zero) {
 		return resp, errors.New("Negative price is not allowed")
 	}
 
@@ -236,11 +237,11 @@ func PlaceOrder(
 
 	data.Add("tradingPair", pair)
 	data.Add("side", string(side))
-	data.Add("amount", strconv.FormatFloat(amount, 'f', amountDecimals, 64))
-	data.Add("price", strconv.FormatFloat(price, 'f', priceDecimals, 64))
+	data.Add("amount", amount.StringFixed(amountDecimals))
+	data.Add("price", price.StringFixed(priceDecimals))
 
-	if takeProfitPrice > 0 {
-		data.Add("takeProfitPrice", strconv.FormatFloat(takeProfitPrice, 'f', priceDecimals, 64))
+	if takeProfitPrice.GreaterThan(decimal.Zero) {
+		data.Add("takeProfitPrice", takeProfitPrice.StringFixed(priceDecimals))
 	}
 
 	if expireDate != nil {

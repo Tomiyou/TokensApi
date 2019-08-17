@@ -4,15 +4,17 @@
 
 package entities
 
-import "encoding/json"
+import (
+	"github.com/shopspring/decimal"
+)
 
 type TickerResp struct {
 	Base
-	Bid        json.Number `json:"bid,string" description:"Current best bid."`
-	Ask        json.Number `json:"ask,string" description:"Current best bid."`
-	Low        json.Number `json:"low,string" description:"Lowest value of requested interval."`
-	High       json.Number `json:"high,string" description:"Highest value of requested interval."`
-	Vwap       json.Number `json:"vwap,string" description:"Volume weighted average."`
-	Volume     json.Number `json:"volume,string" description:"Volume in the requested interval"`
-	VolumeUsdt json.Number `json:"volume_usdt,string" description:"Volume in the requested interval (in USDT)"`
+	Bid        decimal.Decimal `json:"bid,string" description:"Current best bid."`
+	Ask        decimal.Decimal `json:"ask,string" description:"Current best bid."`
+	Low        decimal.Decimal `json:"low,string" description:"Lowest value of requested interval."`
+	High       decimal.Decimal `json:"high,string" description:"Highest value of requested interval."`
+	Vwap       decimal.Decimal `json:"vwap,string" description:"Volume weighted average."`
+	Volume     decimal.Decimal `json:"volume,string" description:"Volume in the requested interval"`
+	VolumeUsdt decimal.Decimal `json:"volume_usdt,string" description:"Volume in the requested interval (in USDT)"`
 }

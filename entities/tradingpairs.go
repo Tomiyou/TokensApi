@@ -4,12 +4,14 @@
 
 package entities
 
-import "encoding/json"
+import (
+	"github.com/shopspring/decimal"
+)
 
 type TradingPair struct {
-	PriceDecimals   int         `json:"priceDecimals" description:"Decimals for price"`
-	AmountDecimals  int         `json:"amountDecimals" description:"Decimals for amount"`
-	MinAmount       json.Number `json:"minAmount" description:"Minimum amount of base currency."`
+	PriceDecimals   int32         `json:"priceDecimals" description:"Decimals for price"`
+	AmountDecimals  int32         `json:"amountDecimals" description:"Decimals for amount"`
+	MinAmount       decimal.Decimal `json:"minAmount" description:"Minimum amount of base currency."`
 	BaseCurrency    string      `json:"baseCurrency" description:"Base currency."`
 	CounterCurrency string      `json:"counterCurrency" description:"Counter currency."`
 	Title           string      `json:"title" description:"Title."`

@@ -8,13 +8,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/shopspring/decimal"
 	"net/url"
 	"sort"
 	"strconv"
 	"time"
 
 	"github.com/Tomiyou/TokensApi/entities"
+	"github.com/shopspring/decimal"
 
 	"github.com/golang/glog"
 	uuid "github.com/satori/go.uuid"
@@ -325,4 +325,49 @@ func GetTransactions(page int) (entities.TransactionResp, error) {
 
 	err := deserialize(jsonBlob, &resp)
 	return resp, err
+}
+
+/**
+ * Get transactions. Currency parameter specifies the currency of the deposit address
+ */
+func GetDepositAddress(currency string) (string, error) {
+	var resp entities.DepositAddressResp
+
+	jsonBlob := requestAuth(TokensBaseUrl + fmt.Sprintf("private/deposit/%s/", currency))
+	if jsonBlob == nil {
+		return "", errors.New("No response")
+	}
+
+	glog.V(5).Infof("GetDepositAddress resp %v", string(jsonBlob))
+
+	err := deserialize(jsonBlob, &resp)
+	return resp.Address, err
+}
+
+/**
+ * Make withdrawal of currency
+ */
+func Withdraw(currency, address string, amount decimal.Decimal) (resp map[string]interface{}, err error) {
+
+	data := url.Values{}
+
+	data.Add("address", address)
+	data.Add("amount", amount.StringFixed(8))
+
+	jsonBlob := requestAuthPost(TokensBaseUrl+fmt.Sprintf("/private/withdraw/add/%s/", currency), data)
+	if jsonBlob == nil {
+		return resp, errors.New("No response")
+	}
+
+	glog.V(5).Infof("PlaceOrder resp %v", string(jsonBlob))
+
+	emptyBase := entities.Base{}
+	err = deserialize(jsonBlob, &emptyBase)
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(jsonBlob, &resp)
+
+	return
 }

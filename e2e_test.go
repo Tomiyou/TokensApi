@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/fiksn/TokensApi/entities"
+	"github.com/Tomiyou/TokensApi/entities"
 	uuid "github.com/satori/go.uuid"
 )
 

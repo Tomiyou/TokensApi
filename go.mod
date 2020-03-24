@@ -1,4 +1,4 @@
-module github.com/fiksn/TokensApi
+module github.com/Tomiyou/TokensApi
 
 go 1.12
 

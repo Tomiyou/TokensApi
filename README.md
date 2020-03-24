@@ -1,6 +1,6 @@
 # TokensApi
 
-[![Build Status](https://travis-ci.org/fiksn/TokensApi.svg?branch=master)](https://travis-ci.org/fiksn/TokensApi)
+[![Build Status](https://travis-ci.org/Tomiyou/TokensApi.svg?branch=master)](https://travis-ci.org/Tomiyou/TokensApi)
 [![forthebadge](https://forthebadge.com/images/badges/made-with-go.svg)](https://forthebadge.com)
 [![forthebadge](https://forthebadge.com/images/badges/contains-technical-debt.svg)](https://forthebadge.com)
 
@@ -16,8 +16,8 @@ I tried to learn golang by doing. Therefore there might be some ugly parts insid
 package test
 
 import (
-    api "github.com/fiksn/TokensApi"
-    entities "github.com/fiksn/TokensApi/entities"
+    api "github.com/Tomiyou/TokensApi"
+    entities "github.com/Tomiyou/TokensApi/entities"
 )
 
 resp, err := api.GetTicker("btcusdt", api.Day)

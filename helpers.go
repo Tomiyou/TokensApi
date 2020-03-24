@@ -18,7 +18,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/fiksn/TokensApi/entities"
+	"github.com/Tomiyou/TokensApi/entities"
 
 	"github.com/golang/glog"
 )
